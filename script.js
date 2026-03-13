@@ -94,6 +94,11 @@
   let qwertyBaseOctave = 4;
   const qwertyActivePitches = new Map(); 
 
+  // Pedal config
+  const physicallyHeldPitches = new Set();
+  const pedalSustainedPitches = new Set();
+  let isSustainPedalDown = false;
+
   // ======================================================================
   // ============================== AUDIO =================================
   // ======================================================================
@@ -200,7 +205,6 @@
   function cleanupVoice(voice) {
     activeVoices.delete(voice);
     
-    // Manage visual active state
     let stillPlaying = false;
     for (let v of activeVoices) {
       if (v.abs === voice.abs) {
@@ -226,14 +230,12 @@
     const info = getKeyAudioInfo(keyNode);
     if (!info) return;
 
-    // Apply immediate visual state update before fetching/decoding starts
     keyNode.classList.add('playing');
     updateAnalysis();
 
     await resumeAudioIfNeeded();
     const buf = await loadBuffer(info.url);
     if (!buf) {
-      // Revert if buffer fails and no other active voice uses this key
       let stillPlaying = Array.from(activeVoices).some(v => v.abs === abs);
       if (!stillPlaying) {
         keyNode.classList.remove('playing');
@@ -250,7 +252,6 @@
     const src = ctx.createBufferSource();
     src.buffer = buf;
     
-    // Equal power smoothing
     const voicesPlaying = Math.max(1, activeVoices.size + 1);
     const polyphonyGain = Math.min(1, 0.9 / Math.sqrt(voicesPlaying));
 
@@ -261,7 +262,6 @@
     src.connect(gain);
     gain.connect(masterGain);
 
-    // Save the sustain mode chosen exactly when this note started
     const currentSustainMode = sustainSelect.value;
     
     const voice = { id: Date.now() + Math.random(), src, gain, abs, keyNode, startTime: now, sustainMode: currentSustainMode };
@@ -276,15 +276,31 @@
     src.start(now);
   }
 
-  // Interaction handlers
+  // ======================================================================
+  // ======================= INTERACTION HANDLERS ==========================
+  // ======================================================================
   function handleNoteInteractionStart(abs) {
+    physicallyHeldPitches.add(abs);
+    pedalSustainedPitches.delete(abs);
+
     const keyNode = svg?.querySelector(`.key[data-abs="${abs}"]`);
-    if(!keyNode) return;
+    if(!keyNode) return; // Ignores MIDI notes outside visual range
+    
     triggerFlash(keyNode);
     playNoteAudio(abs, keyNode);
   }
 
   function handleNoteInteractionEnd(abs) {
+    physicallyHeldPitches.delete(abs);
+
+    if (isSustainPedalDown) {
+      pedalSustainedPitches.add(abs);
+    } else {
+      releasePitch(abs);
+    }
+  }
+
+  function releasePitch(abs) {
     for (let v of activeVoices) {
       if (v.abs === abs && v.sustainMode === 'release') stopVoice(v);
     }
@@ -698,8 +714,67 @@
     }
   });
 
-  // Observe the root layout element
   ro.observe(document.documentElement);
+
+  // ======================================================================
+  // ============================ WEB MIDI ================================
+  // ======================================================================
+  if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+  } else {
+    console.warn("Web MIDI API not supported in this browser.");
+  }
+
+  function onMIDISuccess(midiAccess) {
+    const inputs = midiAccess.inputs.values();
+    for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
+      input.value.onmidimessage = onMIDIMessage;
+    }
+    
+    // Automatically connect to devices plugged in after the page loads
+    midiAccess.onstatechange = (e) => {
+      if (e.port.type === "input" && e.port.state === "connected") {
+        e.port.onmidimessage = onMIDIMessage;
+      }
+    };
+  }
+
+  function onMIDIFailure() {
+    console.warn("Could not access your MIDI devices.");
+  }
+
+  function onMIDIMessage(message) {
+    const command = message.data[0] >> 4;
+    const note = message.data[1];
+    const velocity = (message.data.length > 2) ? message.data[2] : 0;
+
+    // Note On
+    if (command === 9 && velocity > 0) {
+      const abs = note - ((startOctave + 1) * 12);
+      if (abs >= 0) handleNoteInteractionStart(abs);
+    }
+    // Note Off
+    else if (command === 8 || (command === 9 && velocity === 0)) {
+      const abs = note - ((startOctave + 1) * 12);
+      if (abs >= 0) handleNoteInteractionEnd(abs);
+    }
+    // Control Change (Sustain Pedal)
+    else if (command === 11) {
+      if (note === 64) { 
+        isSustainPedalDown = (velocity >= 64);
+        
+        // If pedal is lifted, release all deferred notes that aren't still physically held down
+        if (!isSustainPedalDown) {
+          for (const abs of pedalSustainedPitches) {
+            if (!physicallyHeldPitches.has(abs)) {
+              releasePitch(abs);
+            }
+          }
+          pedalSustainedPitches.clear();
+        }
+      }
+    }
+  }
 
   // INIT
   setRangePreset("5");
