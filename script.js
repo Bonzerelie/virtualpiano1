@@ -477,9 +477,6 @@
     mount.innerHTML = ""; mount.appendChild(svg);
     applyHighlightColor();
     updateAnalysis();
-    
-    // Notify parent window of height change after building
-    sendHeightToParent();
   }
 
   // ======================================================================
@@ -688,21 +685,21 @@
   // ======================================================================
   // ===================== IFRAME HEIGHT MESSAGING ========================
   // ======================================================================
-  function sendHeightToParent() {
-    // Only send if we are actually inside an iframe
-    if (window.parent !== window) {
-      // Get the full scroll height of the document
-      const height = document.documentElement.scrollHeight || document.body.scrollHeight;
-      
-      // Send the height with a specific type to easily identify the message
-      window.parent.postMessage({ type: 'iframeResize', height: height + 20 }, '*'); 
-      // Added a tiny 20px buffer to prevent edge-case scrollbars
-    }
-  }
+  let lastHeight = 0;
 
-  // Listeners to trigger height adjustments automatically
-  window.addEventListener('load', sendHeightToParent);
-  window.addEventListener('resize', sendHeightToParent);
+  const ro = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const height = Math.ceil(entry.contentRect.height);
+
+      if (height !== lastHeight) {
+        parent.postMessage({ iframeHeight: height }, "*");
+        lastHeight = height;
+      }
+    }
+  });
+
+  // Observe the root layout element
+  ro.observe(document.documentElement);
 
   // INIT
   setRangePreset("5");
