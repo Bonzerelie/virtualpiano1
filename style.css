@@ -1,0 +1,254 @@
+:root {
+  --page-bg: #ffffff;
+  --text: #111;
+  --primary: #ffffff;
+  --card: #f9f9f9;
+  --border: rgba(0,0,0,.2);
+  --shadow: rgba(0,0,0,.08);
+  --text-max: 1100px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page-bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1800px; 
+  margin: 8px auto;
+  padding: 16px;
+}
+
+/* Title images */
+.app-titleWrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:10px 0 6px;
+}
+.app-titleImg{
+  height:auto;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
+  padding-bottom: 10px;
+  max-width: 70%;
+}
+.app-titleImgWide{ width:min(500px, 100%); }
+.app-titleImgWrapped{ width:min(220px, 55vw); }
+
+.hero {
+  text-align: center;
+  max-width: var(--text-max);
+  margin: 0 auto 10px;
+}
+
+.heroTitleText {
+  text-align: center;
+  font-size: 38px;
+  font-weight: 800;
+  margin: 16px 0 10px;
+  letter-spacing: 0.5px;
+}
+
+.app-subtitle {
+  margin: 0 auto;
+  font-size: 15px;
+  font-weight: 400;
+  opacity: .78;
+  line-height: 1.45;
+  max-width: 980px;
+  margin-bottom: 24px;
+}
+
+/* ---- DASHBOARD ROW (Side-by-side layout) ---- */
+.dashboardRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 1400px; 
+  max-width: 100%; 
+  margin: 0 auto 16px;
+  align-items: stretch;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-evenly; 
+  flex: 1 1 500px; 
+  margin: 0;
+}
+
+.analysis {
+  flex: 1 1 350px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.control label {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+
+.colorPicker {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  overflow: hidden;
+}
+.colorPicker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.colorPicker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+.colorPicker::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+select {
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-weight: 800;
+  text-align: center;
+}
+
+button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+button:active { transform: translateY(1px); }
+
+.actions { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+
+.customCard {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: var(--card);
+  box-shadow: 0 6px 16px var(--shadow);
+}
+
+.stage { 
+  margin: 0 auto;
+  width: fit-content; 
+  max-width: 100%;
+}
+
+.mount { 
+  overflow: hidden; 
+} 
+
+/* ---- KEYBOARD SVG CONSTRAINTS ---- */
+.mount svg { 
+  width: 100%; 
+  height: auto; 
+  max-width: 100%; 
+  max-height: 400px; 
+  display: block; 
+  margin: 0 auto; 
+}
+
+.analysisHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.analysisTitle { font-size: 16px; font-weight: 800; }
+
+.analysisGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.analysisCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  min-height: 80px; 
+  min-width: 0; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.analysisLabel {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.analysisBody {
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.chordList { margin: 0; padding: 0; list-style: none; }
+.chordList li { margin: 4px 0; }
+.chordPrimary { font-weight: 900; }
+.chordAlt { opacity: 0.85; }
+.muted { opacity: 0.75; }
+
+.endnotes {
+  margin: 16px auto 0;
+  max-width: var(--text-max);
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.7;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .analysisGrid { grid-template-columns: 1fr; }
+}

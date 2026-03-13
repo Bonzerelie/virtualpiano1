@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtual Piano</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app" id="appRoot">
+    <header class="hero">
+      <div class="app-titleWrap titleModeWide" id="titleWrap" aria-label="Piano Visualiser Tool">
+        <img
+          class="app-titleImg app-titleImgWide"
+          id="titleImgWide"
+          src="images/title.png"
+          alt="Piano Visualiser Tool"
+        />
+      </div>
+      <p class="app-subtitle">
+        <strong>QWERTY Controls:</strong> Use <strong>A-K</strong> for white keys and <strong>W, E, T, Y, U</strong> for black keys. <br>
+        Press <strong>-</strong> or <strong>+</strong> to shift the QWERTY octave, and <strong>Spacebar</strong> to stop all audio.
+      </p>
+    </header>
+
+    <div class="dashboardRow">
+      <div class="topbar customCard">
+        <div class="control">
+          <label for="rangeSelect">Keyboard range</label>
+          <select id="rangeSelect">
+            <option value="2">2 octaves (C4)</option>
+            <option value="3">3 octaves (C3)</option>
+            <option value="4">4 octaves (C2)</option>
+            <option value="5" selected>5 octaves (C2)</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="sustainSelect">Note Sustain Length</label>
+          <select id="sustainSelect">
+            <option value="release">Touchscreen / Mouse / QWERTY Release</option>
+            <option value="0.5">0.5 Seconds</option>
+            <option value="2">2 Seconds</option>
+            <option value="4">4 Seconds</option>
+            <option value="full">Full Decay</option>
+          </select>
+        </div>
+
+        <div class="control actions">
+          <label for="colorHighlight">...</label>
+          <button id="stopNotesBtn" type="button" title="Stops any currently playing notes (fast fade)">Stop All Notes</button>
+        </div>
+
+        <div class="control">
+          <label for="colorHighlight">Highlight colour</label>
+          <input id="colorHighlight" class="colorPicker" type="color" value="#00DB2C" />
+        </div>
+      </div>
+
+      <div class="analysis customCard" aria-live="polite">
+        <div class="analysisHeader">
+          <div class="analysisTitle">Currently playing</div>
+        </div>
+
+        <div class="analysisGrid">
+          <div class="analysisCard analysisCardWide">
+            <div class="analysisLabel">Notes</div>
+            <div class="analysisBody" id="notesOut">—</div>
+          </div>
+
+          <div class="analysisCard analysisCardWide">
+            <div class="analysisLabel">Chord or Interval Detection</div>
+            <div class="analysisBody" id="chordsOut">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage customCard">
+      <div id="mount" class="mount"></div>
+    </div>
+
+    <div class="endnotes">
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
