@@ -477,6 +477,9 @@
     mount.innerHTML = ""; mount.appendChild(svg);
     applyHighlightColor();
     updateAnalysis();
+    
+    // Notify parent window of height change after building
+    sendHeightToParent();
   }
 
   // ======================================================================
@@ -681,6 +684,25 @@
     const items = detected.names.map(name => `<li class="chordPrimary">${escHtml(name)}</li>`).join("");
     chordsOut.innerHTML = `<ul class="chordList">${items}</ul>`;
   }
+
+  // ======================================================================
+  // ===================== IFRAME HEIGHT MESSAGING ========================
+  // ======================================================================
+  function sendHeightToParent() {
+    // Only send if we are actually inside an iframe
+    if (window.parent !== window) {
+      // Get the full scroll height of the document
+      const height = document.documentElement.scrollHeight || document.body.scrollHeight;
+      
+      // Send the height with a specific type to easily identify the message
+      window.parent.postMessage({ type: 'iframeResize', height: height + 20 }, '*'); 
+      // Added a tiny 20px buffer to prevent edge-case scrollbars
+    }
+  }
+
+  // Listeners to trigger height adjustments automatically
+  window.addEventListener('load', sendHeightToParent);
+  window.addEventListener('resize', sendHeightToParent);
 
   // INIT
   setRangePreset("5");
